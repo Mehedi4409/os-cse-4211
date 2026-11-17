@@ -7,12 +7,14 @@ const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
 const WorkedExampleSection = ({ example }) => {
   if (!example) return null;
 
-  const totalGanttTime = example.solution.gantt_chart.at(-1).end;
-
   const enter = (i) => ({
     animation: `example-rise 700ms ${EASE} both`,
     animationDelay: `${i * 90}ms`,
   });
+
+  // Fixed visual width percentages requested: P1 = 60%, P2 = 20%, P3 = 20%
+  const ganttWidths = ['60%', '20%', '20%'];
+  const totalGanttTime = example.solution.gantt_chart.at(-1).end;
 
   return (
     <section
@@ -76,7 +78,7 @@ const WorkedExampleSection = ({ example }) => {
         </div>
 
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full text-left" style={{ fontSize: 'var(--text-body)' }}>
+          <table className="w-full min-w-[320px] text-left" style={{ fontSize: 'var(--text-body)' }}>
             <thead>
               <tr className="border-b border-black/[0.08] text-[#8e8e93]">
                 <th className="pb-3 font-medium">Process</th>
@@ -135,22 +137,21 @@ const WorkedExampleSection = ({ example }) => {
             Ready Queue Order
           </span>
           <div
-            className="mt-2 font-mono font-semibold text-[#1d1d1f]"
+            className="mt-2 font-mono font-semibold text-[#1d1d1f] overflow-x-auto pb-1"
             style={{ fontSize: 'var(--text-body)' }}
           >
             {example.solution.ready_queue_sequence.join('  →  ')}
           </div>
         </div>
 
-        {/* Proportional Gantt Chart */}
-        <div className="mt-8">
+        {/* Gantt Chart with explicit 60% / 20% / 20% width allocation */}
+        <div className="mt-8 overflow-x-auto pb-2">
           <span className="font-medium text-[#8e8e93]" style={{ fontSize: 'var(--text-body)' }}>
             Gantt Chart
           </span>
 
-          <div className="mt-3 flex w-full overflow-hidden rounded-xl border border-black/[0.1] bg-white">
+          <div className="mt-3 flex w-full min-w-[340px] overflow-hidden rounded-xl border border-black/[0.1] bg-white">
             {example.solution.gantt_chart.map((block, idx) => {
-              const widthPercent = ((block.end - block.start) / totalGanttTime) * 100;
               const styles = [
                 'bg-[#111d4a] text-white',
                 'bg-[#92140c] text-white',
@@ -164,13 +165,13 @@ const WorkedExampleSection = ({ example }) => {
                   whileInView={{ scaleX: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: idx * 0.15, ease: [0.32, 0.72, 0, 1] }}
-                  style={{ width: `${widthPercent}%`, transformOrigin: 'left' }}
-                  className={`flex flex-col items-center justify-center border-r border-black/[0.08] py-4 last:border-r-0 ${styles[idx % styles.length]}`}
+                  style={{ width: ganttWidths[idx], transformOrigin: 'left' }}
+                  className={`flex flex-col items-center justify-center border-r border-black/[0.08] py-3 sm:py-4 px-1 last:border-r-0 ${styles[idx % styles.length]}`}
                 >
-                  <span className="font-semibold" style={{ fontSize: 'var(--text-body)' }}>
+                  <span className="font-semibold text-xs sm:text-sm">
                     {block.process}
                   </span>
-                  <span className="mt-0.5 font-mono text-xs opacity-75">
+                  <span className="mt-0.5 font-mono text-[10px] sm:text-xs opacity-75 whitespace-nowrap">
                     {block.start}–{block.end}
                   </span>
                 </motion.div>
@@ -178,22 +179,12 @@ const WorkedExampleSection = ({ example }) => {
             })}
           </div>
 
-          {/* Proportional Timeline Markers */}
-          <div className="relative mt-2 h-5 w-full font-mono text-xs text-[#8e8e93]">
+          {/* Timeline Markers */}
+          <div className="relative mt-2 h-5 w-full min-w-[340px] font-mono text-xs text-[#8e8e93]">
             <span className="absolute left-0">0</span>
-            {example.solution.gantt_chart.map((block, idx) => {
-              const leftPercent = (block.end / totalGanttTime) * 100;
-              const isLast = idx === example.solution.gantt_chart.length - 1;
-              return (
-                <span
-                  key={block.end}
-                  style={{ left: `${leftPercent}%` }}
-                  className={`absolute ${isLast ? '-translate-x-full' : '-translate-x-1/2'}`}
-                >
-                  {block.end}
-                </span>
-              );
-            })}
+            <span className="absolute left-[60%] -translate-x-1/2">24</span>
+            <span className="absolute left-[80%] -translate-x-1/2">27</span>
+            <span className="absolute right-0 -translate-x-0">30</span>
           </div>
         </div>
       </div>
@@ -215,9 +206,9 @@ const WorkedExampleSection = ({ example }) => {
           </span>
         </div>
 
-        {/* Clean Borderless Calculation Table */}
+        {/* Calculation Table */}
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full text-left" style={{ fontSize: 'var(--text-body)' }}>
+          <table className="w-full min-w-[420px] text-left" style={{ fontSize: 'var(--text-body)' }}>
             <thead>
               <tr className="border-b border-black/[0.08] text-[#8e8e93]">
                 <th className="pb-3 font-medium">Process</th>
@@ -255,7 +246,7 @@ const WorkedExampleSection = ({ example }) => {
               </p>
             </div>
             <span
-              className="font-semibold  text-[#92140c]"
+              className="font-semibold text-[#92140c]"
               style={{ fontSize: 'var(--text-subheader)' }}
             >
               {example.solution.mathematical_steps.average_wt}

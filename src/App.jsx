@@ -27,7 +27,7 @@ function App() {
     <ReactLenis root>
       <div className="min-h-screen bg-white text-black ">
         <SideNav lectures={LECTURES} activeId={activeId} onSelect={setActiveId}>
-          <div className="px-8 pt-8">
+          <div className="lg:px-8 sm:px-4 pt-8 ">
             {activeId === 'home' ? (
               <HomeView onStartLecture={setActiveId} />
             ) : (
