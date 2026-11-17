@@ -1,0 +1,126 @@
+{
+  "id": "lecture-2",
+  "number": "02",
+  "title": "CPU Scheduling",
+  "subtitle": "Preemptive vs Non-Preemptive scheduling, metrics, criteria, and FCFS mathematical walkthrough.",
+  "sections": [
+    {
+      "type": "theory_classification",
+      "title": "Types of CPU Scheduling",
+      "description": "CPU scheduling algorithms fall into two broad categories based on whether a running process can be forcefully interrupted.",
+      "categories": [
+        {
+          "type": "Preemptive",
+          "description": "The operating system can forcefully pause a currently running process and allocate the CPU to another process.",
+          "algorithms": ["Priority Scheduling", "Round Robin", "SRTF (Shortest Remaining Time First)"]
+        },
+        {
+          "type": "Non-Preemptive",
+          "description": "Once the CPU has been allocated to a process, the process keeps the CPU until it voluntarily releases it (either by terminating or switching to I/O).",
+          "algorithms": ["FCFS (First-Come, First-Served)", "SJF (Shortest Job First)", "Priority Scheduling"]
+        }
+      ]
+    },
+    {
+      "type": "terminology",
+      "title": "Key Timings in CPU Scheduling",
+      "description": "Essential time parameters used to evaluate and calculate scheduling algorithm performance.",
+      "metrics": [
+        {
+          "name": "Arrival Time (AT)",
+          "definition": "The exact time at which a process enters the ready queue and is ready for execution."
+        },
+        {
+          "name": "Burst Time / Execution Time (BT)",
+          "definition": "The total amount of CPU time required by a process to complete its execution."
+        },
+        {
+          "name": "Completion Time (CT)",
+          "definition": "The time instant at which a process completes its execution and finishes."
+        },
+        {
+          "name": "Turnaround Time (TAT)",
+          "definition": "Total time taken from the moment a process arrives to the time it completes. Formula: TAT = Completion Time - Arrival Time."
+        },
+        {
+          "name": "Waiting Time (WT)",
+          "definition": "Total amount of time a process spends waiting in the ready queue. Formula: WT = Turnaround Time - Burst Time."
+        },
+        {
+          "name": "Response Time (RT)",
+          "definition": "The time elapsed from when a process is submitted until the first time it gets the CPU."
+        }
+      ]
+    },
+    {
+      "type": "criteria",
+      "title": "CPU Scheduling Criteria & Optimization Goals",
+      "general_criteria": [
+        "CPU Utilization: Keep the CPU as busy as possible.",
+        "Throughput: Number of processes completed per time unit.",
+        "Turnaround Time (TAT): Total time for process execution.",
+        "Waiting Time (WT): Total time spent waiting in ready queue.",
+        "Response Time (RT): Time taken to start responding."
+      ],
+      "why_less_waiting_time_is_good": "Lower waiting time means processes spend less idle time in the ready queue, leading to faster user-perceived responsiveness, higher overall system throughput, and optimal resource utilization.",
+      "algorithm_optimization_goals": [
+        {
+          "metric": "Max CPU Utilization",
+          "description": "Keep hardware processing units active and minimize idle cycles."
+        },
+        {
+          "metric": "Max Throughput",
+          "description": "Maximize the count of completed processes per unit of time."
+        },
+        {
+          "metric": "Min Turnaround Time (TAT)",
+          "description": "Minimize the interval from submission to completion."
+        },
+        {
+          "metric": "Min Response Time (RT)",
+          "description": "Minimize the delay before the first response/execution slice is granted."
+        }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "algorithm": "First-Come, First-Served (FCFS)",
+      "mode": "Non-Preemptive",
+      "question": {
+        "description": "Consider the following set of processes with their respective Arrival Times and Burst Times. Find the average Waiting Time, average Turnaround Time, and Throughput.",
+        "processes": [
+          { "process": "P1", "burst_time": 24, "arrival_time": 0 },
+          { "process": "P2", "burst_time": 3, "arrival_time": 1 },
+          { "process": "P3", "burst_time": 3, "arrival_time": 2 }
+        ],
+        "to_find": [
+          "1. Average Waiting Time (Avg WT)",
+          "2. Average Turnaround Time (Avg TAT)",
+          "3. Throughput"
+        ]
+      },
+      "solution": {
+        "gantt_chart": [
+          { "process": "P1", "start": 0, "end": 24 },
+          { "process": "P2", "start": 24, "end": 27 },
+          { "process": "P3", "start": 27, "end": 30 }
+        ],
+        "ready_queue_sequence": ["P1", "P2", "P3"],
+        "calculation_table": [
+          { "process": "P1", "arrival_time": 0, "burst_time": 24, "completion_time": 24, "turnaround_time": 24, "waiting_time": 0 },
+          { "process": "P2", "arrival_time": 1, "burst_time": 3, "completion_time": 27, "turnaround_time": 26, "waiting_time": 23 },
+          { "process": "P3", "arrival_time": 2, "burst_time": 3, "completion_time": 30, "turnaround_time": 28, "waiting_time": 25 }
+        ],
+        "mathematical_steps": {
+          "turnaround_time_formula": "TAT = Completion Time (CT) - Arrival Time (AT)",
+          "waiting_time_formula": "WT = Turnaround Time (TAT) - Burst Time (BT)",
+          "total_tat": "24 + 26 + 28 = 78",
+          "average_tat": "78 / 3 = 26 units",
+          "total_wt": "0 + 23 + 25 = 48",
+          "average_wt": "48 / 3 = 16 units",
+          "throughput": "3 processes / 30 time units = 0.1 processes/unit time"
+        }
+      }
+    }
+  ]
+}

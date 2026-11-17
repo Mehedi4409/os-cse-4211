@@ -1,62 +1,49 @@
-import React from 'react'
-import { ReactLenis } from 'lenis/react'
-import { MessageCircle } from 'lucide-react'
-import './App.css'
-import Banner from './components/Banner'
-import Navbar from './components/Navbar'
-import CallToAction from './components/CallToAction'
-import Footer from './components/Footer'
-import ClientMarquee from './components/ClientMarquee'
-import ServicesSection from './components/ServicesSection'
-import TestimonialsSection from './components/TestimonialsSection'
-import BenefitsSection from './components/BenefitsSection'
-import FAQSection from './components/FAQSection'
+import React, { useState } from 'react';
+import { ReactLenis } from 'lenis/react';
 
+import SideNav from './components/SideNav';
+import HomeView from './components/HomeView';
+import Lecture1 from './components/Lecture1';
+import Lecture2 from './components/Lecture2';
+import Lecture3 from './components/Lecture3';
+import Lecture4 from './components/Lecture4';
+import Lecture5 from './components/Lecture5';
 
-const AGENCY_CONFIG = {
-  whatsappNumber: "8801700000000",
-  defaultMessage: "Hello ODISY team! I'm reaching out from your website to discuss a project.",
-  smoothScrollOptions: {
-    lerp: 0.1,
-    duration: 1.5,
-    smoothTouch: false,
-    wheelMultiplier: 1,
-  }
-};
-
-
-
+const LECTURES = [
+  { id: 'lecture-1', number: '01', title: 'Introduction to OS', component: Lecture1 },
+  { id: 'lecture-2', number: '02', title: 'Processes & Threads', component: Lecture2 },
+  { id: 'lecture-3', number: '03', title: 'CPU Scheduling', component: Lecture3 },
+  { id: 'lecture-4', number: '04', title: 'Process Synchronization', component: Lecture4 },
+  { id: 'lecture-5', number: '05', title: 'Deadlocks', component: Lecture5 },
+];
 
 function App() {
+  const [activeId, setActiveId] = useState('home');
 
+  const activeLecture = LECTURES.find((lec) => lec.id === activeId);
+  const ActiveComponent = activeLecture?.component;
 
   return (
-    <ReactLenis root options={AGENCY_CONFIG.smoothScrollOptions}>
-      <div className='relative min-h-screen w-full bg-[#0a0a0a] selection:bg-[#536878]/30 selection:text-[#e5e4e2]'>
-        
-        {/* Hero Section Container */}
-        <div className='flex min-h-screen w-full flex-col'>
-          <Navbar />
-          <Banner />
-        </div>
+    <ReactLenis root>
+      <div className="min-h-screen bg-white text-black ">
+        <SideNav lectures={LECTURES} activeId={activeId} onSelect={setActiveId}>
+          <div className="px-8 pt-8">
+            {activeId === 'home' ? (
+              <HomeView onStartLecture={setActiveId} />
+            ) : (
+              activeLecture && (
+                <div className="space-y-6">
+                  
 
-        {/* Content Flow */}
-        <main className='relative z-10 bg-white'>
-          <ClientMarquee />
-          <ServicesSection />
-          <BenefitsSection></BenefitsSection>
-          <TestimonialsSection></TestimonialsSection>
-          <FAQSection></FAQSection>
-          <CallToAction phoneNumber={AGENCY_CONFIG.whatsappNumber} />
-        </main>
-
-        <Footer />
-
-        
-
+                  {ActiveComponent && <ActiveComponent />}
+                </div>
+              )
+            )}
+          </div>
+        </SideNav>
       </div>
     </ReactLenis>
-  )
+  );
 }
 
-export default App
+export default App;

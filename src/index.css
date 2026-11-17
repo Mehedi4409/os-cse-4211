@@ -1,3 +1,18 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@plugin "daisyui/theme" {
+  name: "os-theme";
+  default: true;
+  --color-primary: #92140c;
+  --color-primary-content: #ffffff;
+  --color-secondary: #111d4a;
+  --color-secondary-content: #ffffff;
+}
+
+:root {
+  /* Golden Ratio Fluid Typography Scale (1.618) */
+  --text-body: clamp(0.75rem, 0.4vw + 0.65rem, 1rem);         /* 12px -> 16px */
+  --text-subheader: clamp(1.21rem, 0.65vw + 1.05rem, 1.618rem); /* ~19.4px -> ~25.9px */
+  --text-header: clamp(1.96rem, 1.05vw + 1.7rem, 2.618rem);   /* ~31.4px -> ~41.9px */
+}
