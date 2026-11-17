@@ -11,8 +11,8 @@ import Lecture5 from './components/Lecture5';
 
 const LECTURES = [
   { id: 'lecture-1', number: '01', title: 'Introduction to OS', component: Lecture1 },
-  { id: 'lecture-2', number: '02', title: 'Processes & Threads', component: Lecture2 },
-  { id: 'lecture-3', number: '03', title: 'CPU Scheduling', component: Lecture3 },
+  { id: 'lecture-2', number: '02', title: 'CPU Scheduling', component: Lecture2 },
+  { id: 'lecture-3', number: '03', title: 'Processes & Threads', component: Lecture3 },
   { id: 'lecture-4', number: '04', title: 'Process Synchronization', component: Lecture4 },
   { id: 'lecture-5', number: '05', title: 'Deadlocks', component: Lecture5 },
 ];
