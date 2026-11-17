@@ -1,0 +1,71 @@
+{
+  "title": "Practice Questions",
+  "subtitle": "Test your mastery of CPU scheduling classifications, FCFS calculations, and the Convoy Effect.",
+  "questions": [
+    {
+      "id": 1,
+      "category": "Classification",
+      "question": "What is the primary operational difference between Preemptive and Non-Preemptive CPU scheduling?",
+      "options": [
+        "Preemptive algorithms do not support Arrival Times.",
+        "Preemptive algorithms can forcefully interrupt a running process, whereas non-preemptive algorithms allow a process to retain the CPU until it voluntarily yields or terminates.",
+        "Non-preemptive algorithms are exclusively used for multi-core processors.",
+        "Preemptive algorithms always result in zero waiting time."
+      ],
+      "correct_index": 1,
+      "explanation": "In preemptive scheduling, the OS can forcefully pause the current process. In non-preemptive scheduling, the process keeps the CPU until it finishes or switches to I/O."
+    },
+    {
+      "id": 2,
+      "category": "Terminology",
+      "question": "If a process has an Arrival Time (AT) of 2 units, a Burst Time (BT) of 5 units, and finishes execution at Completion Time (CT) of 10 units, what is its Turnaround Time (TAT) and Waiting Time (WT)?",
+      "options": [
+        "TAT = 8 units, WT = 3 units",
+        "TAT = 10 units, WT = 5 units",
+        "TAT = 7 units, WT = 2 units",
+        "TAT = 5 units, WT = 3 units"
+      ],
+      "correct_index": 0,
+      "explanation": "TAT = CT - AT = 10 - 2 = 8 units. WT = TAT - BT = 8 - 5 = 3 units."
+    },
+    {
+      "id": 3,
+      "category": "FCFS Calculation",
+      "question": "Consider FCFS with processes arriving at AT = 0: P1 (BT = 4), P2 (BT = 1), P3 (BT = 2). What is the Waiting Time for process P3?",
+      "options": [
+        "0 units",
+        "4 units",
+        "5 units",
+        "7 units"
+      ],
+      "correct_index": 2,
+      "explanation": "P1 executes from 0 to 4 (WT = 0). P2 executes from 4 to 5 (WT = 4). P3 starts at t = 5. Since P3 arrived at t = 0, its Waiting Time = Start Time - Arrival Time = 5 - 0 = 5 units (or accumulated previous burst times: BT(P1) + BT(P2) = 4 + 1 = 5)."
+    },
+    {
+      "id": 4,
+      "category": "Convoy Effect",
+      "question": "Which scheduling algorithm is notorious for causing the 'Convoy Effect', and what causes it?",
+      "options": [
+        "Round Robin; caused by extremely short time quanta.",
+        "FCFS; caused by short processes getting stuck behind a single long CPU-bound process.",
+        "SJF; caused by sorting jobs by shortest burst time first.",
+        "Priority Scheduling; caused by high-priority tasks starving the CPU."
+      ],
+      "correct_index": 1,
+      "explanation": "In FCFS, if a long CPU-bound process arrives first, all subsequent fast processes get stuck behind it, inflating average waiting times (the Convoy Effect)."
+    },
+    {
+      "id": 5,
+      "category": "SJF Resolution",
+      "question": "How does Shortest Job First (SJF) mitigate the Convoy Effect?",
+      "options": [
+        "By preempting processes every 2 time units.",
+        "By prioritizing jobs with the earliest arrival time regardless of length.",
+        "By prioritizing processes with the smallest Burst Time, allowing quick tasks to clear the ready queue immediately.",
+        "By doubling the CPU clock speed for shorter jobs."
+      ],
+      "correct_index": 2,
+      "explanation": "SJF selects the process with the shortest burst time next, preventing short tasks from waiting behind long tasks and drastically lowering average waiting times."
+    }
+  ]
+}

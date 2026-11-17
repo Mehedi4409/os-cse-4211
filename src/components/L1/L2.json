@@ -2,7 +2,7 @@
   "id": "lecture-2",
   "number": "02",
   "title": "CPU Scheduling",
-  "subtitle": "Preemptive vs Non-Preemptive scheduling, metrics, criteria, and FCFS mathematical walkthrough.",
+  "subtitle": "Preemptive vs Non-Preemptive scheduling, metrics, criteria, FCFS mathematical walkthroughs, and the Convoy Effect.",
   "sections": [
     {
       "type": "theory_classification",
@@ -83,42 +83,210 @@
       ]
     },
     {
-      "type": "worked_example",
+      "type": "worked_examples",
       "algorithm": "First-Come, First-Served (FCFS)",
       "mode": "Non-Preemptive",
-      "question": {
-        "description": "Consider the following set of processes with their respective Arrival Times and Burst Times. Find the average Waiting Time, average Turnaround Time, and Throughput.",
-        "processes": [
-          { "process": "P1", "burst_time": 24, "arrival_time": 0 },
-          { "process": "P2", "burst_time": 3, "arrival_time": 1 },
-          { "process": "P3", "burst_time": 3, "arrival_time": 2 }
-        ],
-        "to_find": [
-          "1. Average Waiting Time (Avg WT)",
-          "2. Average Turnaround Time (Avg TAT)",
-          "3. Throughput"
+      "examples": [
+        {
+          "id": "fcfs-ex-1",
+          "label": "Example 01 — Sequential Arrival",
+          "question": {
+            "description": "Consider the following set of processes with their respective Arrival Times and Burst Times. Find the average Waiting Time, average Turnaround Time, and Throughput.",
+            "processes": [
+              { "process": "P1", "arrival_time": 0, "burst_time": 24 },
+              { "process": "P2", "arrival_time": 1, "burst_time": 3 },
+              { "process": "P3", "arrival_time": 2, "burst_time": 3 }
+            ],
+            "to_find": [
+              "Average Waiting Time (Avg WT)",
+              "Average Turnaround Time (Avg TAT)",
+              "Throughput"
+            ]
+          },
+          "solution": {
+            "ready_queue_sequence": ["P1", "P2", "P3"],
+            "gantt_chart": [
+              { "process": "P1", "start": 0, "end": 24, "is_idle": false },
+              { "process": "P2", "start": 24, "end": 27, "is_idle": false },
+              { "process": "P3", "start": 27, "end": 30, "is_idle": false }
+            ],
+            "calculation_table": [
+              { "process": "P1", "arrival_time": 0, "burst_time": 24, "completion_time": 24, "turnaround_time": 24, "waiting_time": 0 },
+              { "process": "P2", "arrival_time": 1, "burst_time": 3, "completion_time": 27, "turnaround_time": 26, "waiting_time": 23 },
+              { "process": "P3", "arrival_time": 2, "burst_time": 3, "completion_time": 30, "turnaround_time": 28, "waiting_time": 25 }
+            ],
+            "mathematical_steps": {
+              "total_tat": "24 + 26 + 28 = 78",
+              "average_tat": "78 / 3 = 26 units",
+              "total_wt": "0 + 23 + 25 = 48",
+              "average_wt": "48 / 3 = 16 units",
+              "throughput": "3 / 30 = 0.1 processes/unit time"
+            }
+          }
+        },
+        {
+          "id": "fcfs-ex-2",
+          "label": "Example 02 — With CPU Idle Time",
+          "question": {
+            "description": "Notice that P1 and P2 finish at t = 4, while P3 does not arrive until t = 5, leaving the CPU idle for 1 unit of time. Calculate Avg WT, Avg TAT, and Throughput.",
+            "processes": [
+              { "process": "P1", "arrival_time": 0, "burst_time": 2 },
+              { "process": "P2", "arrival_time": 1, "burst_time": 2 },
+              { "process": "P3", "arrival_time": 5, "burst_time": 3 },
+              { "process": "P4", "arrival_time": 6, "burst_time": 4 }
+            ],
+            "to_find": [
+              "Average Waiting Time (Avg WT)",
+              "Average Turnaround Time (Avg TAT)",
+              "Throughput"
+            ]
+          },
+          "solution": {
+            "ready_queue_sequence": ["P1", "P2", "IDLE", "P3", "P4"],
+            "gantt_chart": [
+              { "process": "P1", "start": 0, "end": 2, "is_idle": false },
+              { "process": "P2", "start": 2, "end": 4, "is_idle": false },
+              { "process": "IDLE", "start": 4, "end": 5, "is_idle": true },
+              { "process": "P3", "start": 5, "end": 8, "is_idle": false },
+              { "process": "P4", "start": 8, "end": 12, "is_idle": false }
+            ],
+            "calculation_table": [
+              { "process": "P1", "arrival_time": 0, "burst_time": 2, "completion_time": 2, "turnaround_time": 2, "waiting_time": 0 },
+              { "process": "P2", "arrival_time": 1, "burst_time": 2, "completion_time": 4, "turnaround_time": 3, "waiting_time": 1 },
+              { "process": "P3", "arrival_time": 5, "burst_time": 3, "completion_time": 8, "turnaround_time": 3, "waiting_time": 0 },
+              { "process": "P4", "arrival_time": 6, "burst_time": 4, "completion_time": 12, "turnaround_time": 6, "waiting_time": 2 }
+            ],
+            "mathematical_steps": {
+              "total_tat": "2 + 3 + 3 + 6 = 14",
+              "average_tat": "14 / 4 = 3.5 units",
+              "total_wt": "0 + 1 + 0 + 2 = 3",
+              "average_wt": "3 / 4 = 0.75 units",
+              "throughput": "4 / 12 = 0.33 processes/unit time"
+            }
+          }
+        },
+        {
+          "id": "fcfs-ex-3",
+          "label": "Example 03 — Out-of-Order Arrival & Tie Breaking",
+          "question": {
+            "description": "Processes arrive out of order. P1 and P4 both arrive at t = 3; FCFS breaks ties using process order (P1 executes before P4). Calculate Avg WT, Avg TAT, and Throughput.",
+            "processes": [
+              { "process": "P1", "arrival_time": 3, "burst_time": 2 },
+              { "process": "P2", "arrival_time": 4, "burst_time": 5 },
+              { "process": "P3", "arrival_time": 0, "burst_time": 2 },
+              { "process": "P4", "arrival_time": 3, "burst_time": 7 },
+              { "process": "P5", "arrival_time": 5, "burst_time": 5 }
+            ],
+            "to_find": [
+              "Average Waiting Time (Avg WT)",
+              "Average Turnaround Time (Avg TAT)",
+              "Throughput"
+            ]
+          },
+          "solution": {
+            "ready_queue_sequence": ["P3", "IDLE", "P1", "P4", "P2", "P5"],
+            "gantt_chart": [
+              { "process": "P3", "start": 0, "end": 2, "is_idle": false },
+              { "process": "IDLE", "start": 2, "end": 3, "is_idle": true },
+              { "process": "P1", "start": 3, "end": 5, "is_idle": false },
+              { "process": "P4", "start": 5, "end": 12, "is_idle": false },
+              { "process": "P2", "start": 12, "end": 17, "is_idle": false },
+              { "process": "P5", "start": 17, "end": 22, "is_idle": false }
+            ],
+            "calculation_table": [
+              { "process": "P1", "arrival_time": 3, "burst_time": 2, "completion_time": 5, "turnaround_time": 2, "waiting_time": 0 },
+              { "process": "P2", "arrival_time": 4, "burst_time": 5, "completion_time": 17, "turnaround_time": 13, "waiting_time": 8 },
+              { "process": "P3", "arrival_time": 0, "burst_time": 2, "completion_time": 2, "turnaround_time": 2, "waiting_time": 0 },
+              { "process": "P4", "arrival_time": 3, "burst_time": 7, "completion_time": 12, "turnaround_time": 9, "waiting_time": 2 },
+              { "process": "P5", "arrival_time": 5, "burst_time": 5, "completion_time": 22, "turnaround_time": 17, "waiting_time": 12 }
+            ],
+            "mathematical_steps": {
+              "total_tat": "2 + 13 + 2 + 9 + 17 = 43",
+              "average_tat": "43 / 5 = 8.6 units",
+              "total_wt": "0 + 8 + 0 + 2 + 12 = 22",
+              "average_wt": "22 / 5 = 4.4 units",
+              "throughput": "5 / 22 = 0.23 processes/unit time"
+            }
+          }
+        },
+        {
+          "id": "fcfs-ex-4",
+          "label": "Example 04 — Without Arrival Time (All AT = 0)",
+          "question": {
+            "description": "When no arrival times are provided, all processes are assumed to arrive simultaneously at t = 0 in the given order. Notice that TAT equals CT when AT = 0.",
+            "processes": [
+              { "process": "P1", "arrival_time": 0, "burst_time": 1 },
+              { "process": "P2", "arrival_time": 0, "burst_time": 5 },
+              { "process": "P3", "arrival_time": 0, "burst_time": 2 },
+              { "process": "P4", "arrival_time": 0, "burst_time": 7 },
+              { "process": "P5", "arrival_time": 0, "burst_time": 5 }
+            ],
+            "to_find": [
+              "Average Waiting Time (Avg WT)",
+              "Average Turnaround Time (Avg TAT)",
+              "Throughput"
+            ]
+          },
+          "solution": {
+            "ready_queue_sequence": ["P1", "P2", "P3", "P4", "P5"],
+            "gantt_chart": [
+              { "process": "P1", "start": 0, "end": 1, "is_idle": false },
+              { "process": "P2", "start": 1, "end": 6, "is_idle": false },
+              { "process": "P3", "start": 6, "end": 8, "is_idle": false },
+              { "process": "P4", "start": 8, "end": 15, "is_idle": false },
+              { "process": "P5", "start": 15, "end": 20, "is_idle": false }
+            ],
+            "calculation_table": [
+              { "process": "P1", "arrival_time": 0, "burst_time": 1, "completion_time": 1, "turnaround_time": 1, "waiting_time": 0 },
+              { "process": "P2", "arrival_time": 0, "burst_time": 5, "completion_time": 6, "turnaround_time": 6, "waiting_time": 1 },
+              { "process": "P3", "arrival_time": 0, "burst_time": 2, "completion_time": 8, "turnaround_time": 8, "waiting_time": 6 },
+              { "process": "P4", "arrival_time": 0, "burst_time": 7, "completion_time": 15, "turnaround_time": 15, "waiting_time": 8 },
+              { "process": "P5", "arrival_time": 0, "burst_time": 5, "completion_time": 20, "turnaround_time": 20, "waiting_time": 15 }
+            ],
+            "mathematical_steps": {
+              "total_tat": "1 + 6 + 8 + 15 + 20 = 50",
+              "average_tat": "50 / 5 = 10 units",
+              "total_wt": "0 + 1 + 6 + 8 + 15 = 30",
+              "average_wt": "30 / 5 = 6 units",
+              "throughput": "5 / 20 = 0.25 processes/unit time"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "concept_deep_dive",
+      "title": "The Convoy Effect & SJF Resolution",
+      "problem": {
+        "name": "Convoy Effect in FCFS",
+        "definition": "A performance bottleneck where multiple short CPU-bound or I/O-bound processes get stuck waiting behind one single long CPU-bound process, just like cars stuck behind a slow truck on a single-lane road.",
+        "consequences": [
+          "Drastically inflates Average Waiting Time and Turnaround Time (as seen in Example 01 where P2 and P3 waited 23 and 25 units behind P1's 24-unit burst).",
+          "Lowers CPU and I/O device utilization because fast I/O-bound processes sit idle in the ready queue instead of initiating disk/network operations."
         ]
       },
       "solution": {
-        "gantt_chart": [
-          { "process": "P1", "start": 0, "end": 24 },
-          { "process": "P2", "start": 24, "end": 27 },
-          { "process": "P3", "start": 27, "end": 30 }
-        ],
-        "ready_queue_sequence": ["P1", "P2", "P3"],
-        "calculation_table": [
-          { "process": "P1", "arrival_time": 0, "burst_time": 24, "completion_time": 24, "turnaround_time": 24, "waiting_time": 0 },
-          { "process": "P2", "arrival_time": 1, "burst_time": 3, "completion_time": 27, "turnaround_time": 26, "waiting_time": 23 },
-          { "process": "P3", "arrival_time": 2, "burst_time": 3, "completion_time": 30, "turnaround_time": 28, "waiting_time": 25 }
-        ],
-        "mathematical_steps": {
-          "turnaround_time_formula": "TAT = Completion Time (CT) - Arrival Time (AT)",
-          "waiting_time_formula": "WT = Turnaround Time (TAT) - Burst Time (BT)",
-          "total_tat": "24 + 26 + 28 = 78",
-          "average_tat": "78 / 3 = 26 units",
-          "total_wt": "0 + 23 + 25 = 48",
-          "average_wt": "48 / 3 = 16 units",
-          "throughput": "3 processes / 30 time units = 0.1 processes/unit time"
+        "name": "How Shortest Job First (SJF) Solves It",
+        "mechanism": "Non-preemptive SJF selects the available process with the smallest Burst Time next rather than strictly following arrival order, allowing quick tasks to clear the queue immediately.",
+        "comparison": {
+          "dataset": [
+            { "process": "P1", "arrival_time": 0, "burst_time": 24 },
+            { "process": "P2", "arrival_time": 0, "burst_time": 3 },
+            { "process": "P3", "arrival_time": 0, "burst_time": 3 }
+          ],
+          "fcfs_gantt": [
+            { "process": "P1", "start": 0, "end": 24 },
+            { "process": "P2", "start": 24, "end": 27 },
+            { "process": "P3", "start": 27, "end": 30 }
+          ],
+          "fcfs_avg_wt": "17.0 units",
+          "sjf_gantt": [
+            { "process": "P2", "start": 0, "end": 3 },
+            { "process": "P3", "start": 3, "end": 6 },
+            { "process": "P1", "start": 6, "end": 30 }
+          ],
+          "sjf_avg_wt": "3.0 units",
+          "improvement": "Average Waiting Time drops from 17.0 units to 3.0 units (an 82% reduction) on the exact same workload."
         }
       }
     }

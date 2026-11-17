@@ -1,20 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calculator } from 'lucide-react';
 
 const EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
 
-const WorkedExampleSection = ({ example }) => {
-  if (!example) return null;
+const WorkedExamplesSection = ({ section }) => {
+  const [activeTab, setActiveTab] = useState(0);
+
+  if (!section || !section.examples) return null;
+
+  const example = section.examples[activeTab];
+  const totalGanttTime = example.solution.gantt_chart.at(-1).end;
 
   const enter = (i) => ({
     animation: `example-rise 700ms ${EASE} both`,
     animationDelay: `${i * 90}ms`,
   });
-
-  // Fixed visual width percentages requested: P1 = 60%, P2 = 20%, P3 = 20%
-  const ganttWidths = ['60%', '20%', '20%'];
-  const totalGanttTime = example.solution.gantt_chart.at(-1).end;
 
   return (
     <section
@@ -34,7 +35,7 @@ const WorkedExampleSection = ({ example }) => {
         }
       `}</style>
 
-      {/* Main Header */}
+      {/* Main Header & Example Tabs */}
       <header data-example-enter style={enter(0)}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Calculator className="h-10 w-10 text-[#111d4a]" strokeWidth={1.5} aria-hidden="true" />
@@ -42,7 +43,7 @@ const WorkedExampleSection = ({ example }) => {
             className="rounded-full bg-[#92140c]/[0.07] px-3.5 py-1 font-medium text-[#92140c]"
             style={{ fontSize: 'var(--text-body)' }}
           >
-            {example.mode}
+            {section.mode}
           </span>
         </div>
 
@@ -50,10 +51,35 @@ const WorkedExampleSection = ({ example }) => {
           className="mt-4 font-semibold leading-[1.15] tracking-[-0.022em] text-[#1d1d1f]"
           style={{ fontSize: 'var(--text-header)' }}
         >
-          {example.algorithm}
+          {section.algorithm} — Worked Examples
         </h2>
+
+        {/* Tab Switcher */}
+        <div className="mt-8 flex flex-wrap gap-2 border-b border-black/[0.06] pb-4">
+          {section.examples.map((ex, idx) => (
+            <button
+              key={ex.id}
+              onClick={() => setActiveTab(idx)}
+              className={`rounded-lg px-4 py-2 font-medium transition-all ${
+                activeTab === idx
+                  ? 'bg-[#111d4a] text-white shadow-xs'
+                  : 'bg-black/[0.04] text-[#6e6e73] hover:bg-black/[0.08] hover:text-[#1d1d1f]'
+              }`}
+              style={{ fontSize: 'var(--text-body)' }}
+            >
+              Example {idx + 1}
+            </button>
+          ))}
+        </div>
+
+        <h3
+          className="mt-6 font-semibold text-[#111d4a]"
+          style={{ fontSize: 'var(--text-subheader)' }}
+        >
+          {example.label}
+        </h3>
         <p
-          className="mt-4 leading-relaxed text-[#6e6e73]"
+          className="mt-2 leading-relaxed text-[#6e6e73]"
           style={{ fontSize: 'var(--text-body)' }}
         >
           {example.question.description}
@@ -82,16 +108,16 @@ const WorkedExampleSection = ({ example }) => {
             <thead>
               <tr className="border-b border-black/[0.08] text-[#8e8e93]">
                 <th className="pb-3 font-medium">Process</th>
-                <th className="pb-3 font-medium">Burst Time (BT)</th>
                 <th className="pb-3 font-medium">Arrival Time (AT)</th>
+                <th className="pb-3 font-medium">Burst Time (BT)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/[0.06]">
               {example.question.processes.map((p) => (
                 <tr key={p.process}>
                   <td className="py-3.5 font-semibold text-[#111d4a]">{p.process}</td>
-                  <td className="py-3.5 text-[#3a3a3c]">{p.burst_time}</td>
                   <td className="py-3.5 text-[#3a3a3c]">{p.arrival_time}</td>
+                  <td className="py-3.5 text-[#3a3a3c]">{p.burst_time}</td>
                 </tr>
               ))}
             </tbody>
@@ -108,7 +134,7 @@ const WorkedExampleSection = ({ example }) => {
               className="rounded-md bg-black/[0.04] px-2.5 py-1 font-medium text-[#1d1d1f]"
               style={{ fontSize: 'var(--text-body)' }}
             >
-              {item.replace(/^\d+\.\s*/, '')}
+              {item}
             </span>
           ))}
         </div>
@@ -144,47 +170,41 @@ const WorkedExampleSection = ({ example }) => {
           </div>
         </div>
 
-        {/* Gantt Chart with explicit 60% / 20% / 20% width allocation */}
+        {/* Proportional Gantt Chart */}
         <div className="mt-8 overflow-x-auto pb-2">
           <span className="font-medium text-[#8e8e93]" style={{ fontSize: 'var(--text-body)' }}>
             Gantt Chart
           </span>
 
-          <div className="mt-3 flex w-full min-w-[340px] overflow-hidden rounded-xl border border-black/[0.1] bg-white">
+          <div className="mt-3 flex w-full min-w-[360px] overflow-hidden rounded-xl border border-black/[0.1] bg-white">
             {example.solution.gantt_chart.map((block, idx) => {
-              const styles = [
-                'bg-[#111d4a] text-white',
-                'bg-[#92140c] text-white',
-                'bg-black/[0.04] text-[#1d1d1f]',
-              ];
+              const duration = block.end - block.start;
+              const widthPercent = (duration / totalGanttTime) * 100;
+              const isIdle = block.is_idle;
 
               return (
                 <motion.div
-                  key={block.process}
+                  key={idx}
                   initial={{ scaleX: 0 }}
                   whileInView={{ scaleX: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: idx * 0.15, ease: [0.32, 0.72, 0, 1] }}
-                  style={{ width: ganttWidths[idx], transformOrigin: 'left' }}
-                  className={`flex flex-col items-center justify-center border-r border-black/[0.08] py-3 sm:py-4 px-1 last:border-r-0 ${styles[idx % styles.length]}`}
+                  style={{ width: `${widthPercent}%`, transformOrigin: 'left' }}
+                  className={`flex flex-col items-center justify-center border-r border-black/[0.08] py-3 sm:py-4 px-1 last:border-r-0 ${
+                    isIdle
+                      ? 'bg-gray-100 text-gray-500 italic'
+                      : idx % 2 === 0
+                      ? 'bg-[#111d4a] text-white'
+                      : 'bg-[#92140c] text-white'
+                  }`}
                 >
-                  <span className="font-semibold text-xs sm:text-sm">
-                    {block.process}
-                  </span>
+                  <span className="font-semibold text-xs sm:text-sm">{block.process}</span>
                   <span className="mt-0.5 font-mono text-[10px] sm:text-xs opacity-75 whitespace-nowrap">
                     {block.start}–{block.end}
                   </span>
                 </motion.div>
               );
             })}
-          </div>
-
-          {/* Timeline Markers */}
-          <div className="relative mt-2 h-5 w-full min-w-[340px] font-mono text-xs text-[#8e8e93]">
-            <span className="absolute left-0">0</span>
-            <span className="absolute left-[60%] -translate-x-1/2">24</span>
-            <span className="absolute left-[80%] -translate-x-1/2">27</span>
-            <span className="absolute right-0 -translate-x-0">30</span>
           </div>
         </div>
       </div>
@@ -206,9 +226,8 @@ const WorkedExampleSection = ({ example }) => {
           </span>
         </div>
 
-        {/* Calculation Table */}
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full min-w-[420px] text-left" style={{ fontSize: 'var(--text-body)' }}>
+          <table className="w-full min-w-[440px] text-left" style={{ fontSize: 'var(--text-body)' }}>
             <thead>
               <tr className="border-b border-black/[0.08] text-[#8e8e93]">
                 <th className="pb-3 font-medium">Process</th>
@@ -234,15 +253,11 @@ const WorkedExampleSection = ({ example }) => {
           </table>
         </div>
 
-        {/* Final Metrics Summary */}
         <ul className="mt-10 divide-y divide-black/[0.06] border-t border-b border-black/[0.06]">
           <li className="flex flex-wrap items-baseline justify-between gap-2 py-5">
             <div>
               <p className="font-medium text-[#1d1d1f]" style={{ fontSize: 'var(--text-body)' }}>
                 Average Waiting Time
-              </p>
-              <p className="mt-0.5 font-mono text-sm text-[#8e8e93]">
-                ({example.solution.mathematical_steps.total_wt}) ÷ 3
               </p>
             </div>
             <span
@@ -258,9 +273,6 @@ const WorkedExampleSection = ({ example }) => {
               <p className="font-medium text-[#1d1d1f]" style={{ fontSize: 'var(--text-body)' }}>
                 Average Turnaround Time
               </p>
-              <p className="mt-0.5 font-mono text-sm text-[#8e8e93]">
-                ({example.solution.mathematical_steps.total_tat}) ÷ 3
-              </p>
             </div>
             <span
               className="font-semibold text-[#111d4a]"
@@ -274,9 +286,6 @@ const WorkedExampleSection = ({ example }) => {
             <div>
               <p className="font-medium text-[#1d1d1f]" style={{ fontSize: 'var(--text-body)' }}>
                 Throughput
-              </p>
-              <p className="mt-0.5 font-mono text-sm text-[#8e8e93]">
-                3 processes ÷ {totalGanttTime} time units
               </p>
             </div>
             <span
@@ -292,4 +301,4 @@ const WorkedExampleSection = ({ example }) => {
   );
 };
 
-export default WorkedExampleSection;
+export default WorkedExamplesSection;
