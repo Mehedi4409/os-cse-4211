@@ -26,11 +26,11 @@ function App() {
 
   return (
     <ReactLenis root>
-      <div className="min-h-screen bg-white text-black ">
+      <div className="min-h-screen bg-white text-black">
         <SideNav lectures={LECTURES} activeId={activeId} onSelect={setActiveId}>
-          <div className="lg:px-8 sm:px-4 pt-8 ">
+          <div className="lg:px-8 sm:px-4 pt-8">
             {activeId === 'home' ? (
-              <HomeView onStartLecture={setActiveId} />
+              <HomeView onStartLecture={() => setActiveId(LECTURES[0].id)} />
             ) : activeId === 'resources' ? (
               <ResourceSection />
             ) : (

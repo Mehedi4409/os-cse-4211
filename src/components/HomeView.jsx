@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Download, ArrowRight, Cpu } from 'lucide-react';
 
+const NOTES_FILE = 'os-note-kulsumma-mid.pdf'; // must match the file in public/downloads
+
 // --- Animation Configuration & Helper ---
 const EASING = [0.16, 1, 0.3, 1];
 
@@ -68,7 +70,6 @@ const ActionButton = ({ variant = 'primary', onClick, children }) => {
       {...BUTTON_INTERACTION}
       type="button"
       onClick={onClick}
-      // Added w-full sm:w-64 and justify-center to ensure identical widths across screen sizes
       className={`group relative inline-flex w-full sm:w-64 items-center justify-center gap-2.5 rounded-xl px-6 py-4 text-sm font-semibold transition-all ${styles[variant]}`}
     >
       {children}
@@ -96,7 +97,10 @@ const ActionGroup = ({ onStartLecture, onDownloadNotes }) => (
 // --- Main View Component ---
 const HomeView = ({ onStartLecture }) => {
   const handleDownloadHandNotes = () => {
-    alert('Hand notes download will start here!');
+    const a = document.createElement('a');
+    a.href = `/downloads/${NOTES_FILE}`;
+    a.download = NOTES_FILE;
+    a.click();
   };
 
   return (
