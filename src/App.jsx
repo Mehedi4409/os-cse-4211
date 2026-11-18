@@ -12,10 +12,10 @@ import ResourceSection from './components/ResourceSection';
 
 const LECTURES = [
   { id: 'lecture-1', number: '01', title: 'Introduction to OS', component: Lecture1 },
-  { id: 'lecture-2', number: '02', title: 'CPU Scheduling', component: Lecture2 },
-  { id: 'lecture-3', number: '03', title: 'Processes & Threads', component: Lecture3 },
-  { id: 'lecture-4', number: '04', title: 'Process Synchronization', component: Lecture4 },
-  { id: 'lecture-5', number: '05', title: 'Deadlocks', component: Lecture5 },
+  { id: 'lecture-2', number: '02', title: 'CPU Scheduling: Part 1', component: Lecture2 },
+  { id: 'lecture-3', number: '03', title: 'CPU Scheduling: Part 2', component: Lecture3 },
+  { id: 'lecture-4', number: '04', title: 'Deadlocks', component: Lecture4 },
+  { id: 'lecture-5', number: '05', title: 'coming soon ...', component: Lecture5 },
 ];
 
 function App() {

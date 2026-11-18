@@ -28,7 +28,7 @@ const ArchitectureBadge = () => (
       <Cpu className="h-3 w-3" />
     </div>
     <span className="text-xs font-medium tracking-wide text-gray-600">
-      Interactive OS Architecture
+      CSE - 4211: Operating Systems
     </span>
   </motion.div>
 );
@@ -94,6 +94,30 @@ const ActionGroup = ({ onStartLecture, onDownloadNotes }) => (
   </motion.div>
 );
 
+const CourseCredits = () => (
+  <motion.div
+    {...getEntranceAnimation(0.4, 20, 0.8)}
+    className="mt-16 border-t border-gray-100 pt-8 text-center"
+  >
+    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-gray-400">
+      <span>
+        Course Teacher:{'  '}
+        <strong className="font-semibold text-gray-700">MD. Mizanur Rahman</strong>
+      </span>
+      <span className="hidden sm:inline text-gray-200">•</span>
+      <span>
+        Notes by:{'  '}
+        <strong className="font-semibold text-gray-700">Kulsuma Akhter</strong>
+      </span>
+      <span className="hidden sm:inline text-gray-200">•</span>
+      <span>
+        Developed by:{'  '}
+        <strong className="font-semibold text-gray-700">Mehedi Hasan</strong>
+      </span>
+    </div>
+  </motion.div>
+);
+
 // --- Main View Component ---
 const HomeView = ({ onStartLecture }) => {
   const handleDownloadHandNotes = () => {
@@ -120,6 +144,7 @@ const HomeView = ({ onStartLecture }) => {
           onStartLecture={onStartLecture}
           onDownloadNotes={handleDownloadHandNotes}
         />
+        <CourseCredits />
       </div>
     </div>
   );
