@@ -1,0 +1,318 @@
+{
+  "id": "lecture-1",
+  "number": "01",
+  "title": "Introduction to Operating Systems & Process Management",
+  "subtitle": "OS fundamentals, system architecture, kernel, OS classifications, storage hierarchy, processes, system calls, state transitions, and schedulers.",
+  "sections": [
+    {
+      "type": "os_overview",
+      "title": "Operating System Fundamentals",
+      "definition": "A program that controls the execution of applications and acts as an intermediary between a user of a computer and the computer hardware.",
+      "roles": [
+        {
+          "name": "Resource Allocator",
+          "description": "Manages all hardware resources and decides between conflicting requests for efficient and fair resource use."
+        },
+        {
+          "name": "Control Program",
+          "description": "Controls the execution of user programs to prevent errors and improper use of the computer."
+        },
+        {
+          "name": "Kernel (Core Program)",
+          "description": "The one program running at all times on the computer; everything else is either a system program or an application program."
+        }
+      ],
+      "goals": [
+        {
+          "goal": "Simplicity",
+          "description": "Executes user programs and makes solving user problems easier by providing a clean interface."
+        },
+        {
+          "goal": "Convenience",
+          "description": "Makes the computer system convenient and intuitive to use."
+        },
+        {
+          "goal": "Efficiency",
+          "description": "Uses the computer hardware in an optimal and efficient manner."
+        },
+        {
+          "goal": "Ability to Evolve",
+          "description": "Permits effective development, testing, and introduction of new system functions without interfering with existing services."
+        }
+      ]
+    },
+    {
+      "type": "computer_system_architecture",
+      "title": "Computer System Components & Kernel",
+      "layers_top_to_bottom": [
+        {
+          "layer": "Users",
+          "description": "People, machines, or other computers interacting with the system."
+        },
+        {
+          "layer": "Application Programs",
+          "description": "Define the ways in which system resources are used to solve user computing problems (e.g., word processors, compilers, assemblers, text editors, database systems, web browsers)."
+        },
+        {
+          "layer": "Operating System",
+          "description": "Controls and coordinates the use of hardware among various applications and users."
+        },
+        {
+          "layer": "Hardware",
+          "description": "Provides basic computing resources including CPU, memory, and I/O devices."
+        }
+      ],
+      "kernel": {
+        "definition": "The core part of an operating system that acts like a bridge between applications and computer hardware.",
+        "responsibilities": [
+          "Manages I/O requests from software.",
+          "Translates software requests into data-processing instructions for the CPU and other electronic components."
+        ],
+        "connected_hardware": ["CPU", "Memory", "I/O Devices"]
+      },
+      "examples_of_os": [
+        { "name": "Windows", "note": "GUI-based OS for PCs" },
+        { "name": "GNU/Linux", "note": "Unix-like open-source OS" },
+        { "name": "macOS", "note": "Used for Apple personal computers and workstations" },
+        { "name": "Android", "note": "Mobile operating system" }
+      ]
+    },
+    {
+      "type": "os_types",
+      "title": "Types of Operating Systems",
+      "categories": [
+        {
+          "name": "Batch Operating System",
+          "description": "Does not interact with the computer directly. An operator takes jobs with similar requirements and groups them into batches before submitting them to the computer.",
+          "examples": ["Payroll systems", "Bank statements"],
+          "advantages": [
+            "Resident monitor improves computer efficiency by eliminating idle CPU time between two consecutive jobs."
+          ],
+          "disadvantages": [
+            "Lack of direct interaction between the user and the job.",
+            "CPU is often idle because mechanical I/O devices are much slower than the CPU.",
+            "Difficult to provide desired priority to urgent jobs."
+          ]
+        },
+        {
+          "name": "Multiprogrammed Operating System",
+          "description": "Keeps multiple programs in main memory (RAM) at the same time and switches the CPU to another program whenever the running program waits for an I/O operation, maximizing CPU utilization.",
+          "execution_flow": [
+            "Multiple programs (P1, P2, P3, P4) are loaded into RAM.",
+            "CPU begins executing P1.",
+            "When P1 needs an I/O operation, it enters the waiting state and CPU immediately switches to P2.",
+            "Once P1's I/O finishes, it returns to the ready queue; after P2 finishes or blocks, CPU resumes P1 until termination."
+          ],
+          "advantages": [
+            "Maximizes CPU utilization so the CPU always has a job to execute."
+          ],
+          "disadvantages": [
+            "Requires larger main memory (RAM).",
+            "More complex to manage.",
+            "Process switching takes extra overhead time and CPU scheduling is difficult (short jobs queued behind long jobs must wait)."
+          ]
+        },
+        {
+          "name": "Time-Sharing (Multitasking) Operating System",
+          "description": "A logical extension of multiprogramming where many users at various terminals share a computer simultaneously. The CPU switches so frequently (response time < 1 second) that users can interact with each running program.",
+          "key_mechanisms": [
+            "Each task is given an equal time slice to execute smoothly.",
+            "Uses CPU scheduling when multiple jobs are ready simultaneously.",
+            "Uses memory swapping to move processes in and out of RAM if they do not fit."
+          ],
+          "advantages": [
+            "Provides quick interactive response times.",
+            "Reduces CPU idle time and maximizes resource utilization."
+          ],
+          "disadvantages": [
+            "Reliability challenges.",
+            "Data communication problems.",
+            "Complex and requires advanced software to schedule multiple users simultaneously."
+          ]
+        },
+        {
+          "name": "Distributed Operating System",
+          "description": "Uses multiple central processors connected through a communication network to serve multiple real-time applications and users, distributing data processing across independent nodes (each with its own CPU, memory, and disk).",
+          "examples": ["Locus"],
+          "advantages": [
+            "Fault tolerance: if one site fails, remaining sites continue working.",
+            "Reduces processing load on individual host computers."
+          ],
+          "disadvantages": [
+            "High network dependency and complex distributed synchronization."
+          ]
+        },
+        {
+          "name": "Network Operating System (NOS)",
+          "description": "Runs on a server and manages data, users, groups, security, applications, and networking functions, allowing users to share files, printers, and resources over a private network.",
+          "examples": ["Windows Server", "UNIX", "Linux", "macOS"],
+          "advantages": [
+            "Centralized server management for security, file sharing, and peripheral access."
+          ],
+          "disadvantages": [
+            "High cost of running and maintaining central servers; dependency on central server availability."
+          ]
+        },
+        {
+          "name": "Real-Time Operating System (RTOS)",
+          "description": "Serves real-time systems by processing and responding to inputs within a strict, very short time interval (Response Time).",
+          "examples": ["Missile systems", "Air traffic control systems", "Industrial robots"],
+          "advantages": [
+            "Deterministic, guaranteed response within strict timing deadlines."
+          ],
+          "disadvantages": [
+            "Limited multitasking flexibility and high system complexity."
+          ]
+        }
+      ]
+    },
+    {
+      "type": "storage_structure",
+      "title": "Storage Structure & Hierarchy",
+      "concepts": [
+        {
+          "name": "Main Memory (RAM)",
+          "description": "The only large storage media that the CPU can access directly. It provides random access and is typically volatile."
+        },
+        {
+          "name": "Secondary Memory",
+          "description": "An extension of main memory that provides large, non-volatile storage capacity."
+        },
+        {
+          "name": "Caching",
+          "description": "Copying information into a faster storage system on a temporary basis; main memory itself can be viewed as a fast cache for secondary storage."
+        }
+      ],
+      "hierarchy_fastest_to_slowest": [
+        { "level": 1, "tier": "Registers", "type": "Volatile" },
+        { "level": 2, "tier": "Cache", "type": "Volatile" },
+        { "level": 3, "tier": "Main Memory (RAM)", "type": "Volatile" },
+        { "level": 4, "tier": "Solid-State Disk (SSD)", "type": "Non-Volatile" },
+        { "level": 5, "tier": "Magnetic Disk", "type": "Non-Volatile" },
+        { "level": 6, "tier": "Optical Disk", "type": "Non-Volatile" },
+        { "level": 7, "tier": "Magnetic Tapes", "type": "Non-Volatile" }
+      ],
+      "tradeoffs": {
+        "moving_up": "Increases speed and cost per bit.",
+        "moving_down": "Increases storage capacity and access time."
+      }
+    },
+    {
+      "type": "process_and_syscalls",
+      "title": "Program vs. Process & System Calls",
+      "definitions": {
+        "program": "A passive entity stored on a disk as an executable file containing a set of instructions to perform a specific task.",
+        "process": "A program in execution. It is an active entity whose execution progresses in a sequential manner."
+      },
+      "comparison": [
+        {
+          "aspect": "Nature",
+          "program": "Passive entity",
+          "process": "Active entity"
+        },
+        {
+          "aspect": "Location",
+          "program": "Stored on secondary storage (disk) as an executable file",
+          "process": "Loaded into main memory (RAM) for execution"
+        },
+        {
+          "aspect": "Content",
+          "program": "A static set of instructions",
+          "process": "A dynamic program currently in execution"
+        }
+      ],
+      "system_calls": {
+        "definition": "The programming interfaces through which a user program requests services from the operating system kernel.",
+        "service_categories": [
+          "File handling",
+          "Process control",
+          "Device / I/O management",
+          "Memory management"
+        ]
+      }
+    },
+    {
+      "type": "process_states",
+      "title": "Process State Transition (7-State Model)",
+      "states": [
+        {
+          "name": "New",
+          "location": "Secondary Memory",
+          "description": "The initial state when a process is being created by the OS while the program resides in secondary memory. The OS prepares necessary resources before admitting it."
+        },
+        {
+          "name": "Ready",
+          "location": "Main Memory (RAM)",
+          "description": "The process is loaded into RAM and is ready to execute, waiting for the CPU to become available. Controlled by the Long-Term Scheduler (LTS)."
+        },
+        {
+          "name": "Running",
+          "location": "CPU",
+          "description": "Instructions are currently being executed by the CPU. Selected from the ready queue by the Short-Term Scheduler (STS) and assigned via the dispatcher."
+        },
+        {
+          "name": "Waiting / Blocked",
+          "location": "Main Memory (RAM)",
+          "description": "The process cannot continue execution until an external event or I/O operation completes, after which it returns to the Ready state."
+        },
+        {
+          "name": "Terminated",
+          "location": "De-allocated",
+          "description": "The process has finished execution or been stopped by the OS, and all allocated memory and resources are de-allocated."
+        },
+        {
+          "name": "Suspend Wait",
+          "location": "Secondary Memory (Backing Store)",
+          "description": "A process waiting for an event or I/O operation that has been temporarily swapped out from RAM to secondary storage by the Mid-Term Scheduler (MTS)."
+        },
+        {
+          "name": "Suspend Ready",
+          "location": "Secondary Memory (Backing Store)",
+          "description": "A process that is ready to execute but has been temporarily swapped out from RAM to secondary storage; must be brought back into RAM before running."
+        }
+      ],
+      "transitions": [
+        { "from": "New", "to": "Ready", "trigger": "Admitted by Long-Term Scheduler (LTS)" },
+        { "from": "Ready", "to": "Running", "trigger": "Dispatched by Short-Term Scheduler (STS)" },
+        { "from": "Running", "to": "Ready", "trigger": "Time quantum expired or higher-priority preemption (Multitasking)" },
+        { "from": "Running", "to": "Waiting / Blocked", "trigger": "I/O request or event wait" },
+        { "from": "Waiting / Blocked", "to": "Ready", "trigger": "I/O or event completion" },
+        { "from": "Running", "to": "Terminated", "trigger": "Execution completion & resource de-allocation" },
+        { "from": "Waiting / Blocked", "to": "Suspend Wait", "trigger": "Swapped out to backing store by Mid-Term Scheduler (MTS)" },
+        { "from": "Suspend Wait", "to": "Suspend Ready", "trigger": "I/O completes while still in secondary storage" },
+        { "from": "Suspend Ready", "to": "Ready", "trigger": "Resumed / swapped back into RAM by MTS" },
+        { "from": "Ready", "to": "Suspend Ready", "trigger": "Swapped out to free RAM by MTS" }
+      ]
+    },
+    {
+      "type": "schedulers_comparison",
+      "title": "CPU Schedulers Comparison",
+      "schedulers": [
+        {
+          "code": "STS",
+          "name": "Short-Term Scheduler",
+          "alias": "CPU Scheduler",
+          "primary_role": "Selects which process in the ready queue gets the CPU next.",
+          "execution_frequency": "Runs very frequently (milliseconds).",
+          "control_metric": "Controls CPU allocation and fast context switching."
+        },
+        {
+          "code": "MTS",
+          "name": "Mid-Term Scheduler",
+          "alias": "Swapper",
+          "primary_role": "Moves processes in and out of main memory (swapping between RAM and backing store).",
+          "execution_frequency": "Runs moderately / sometimes.",
+          "control_metric": "Controls process suspension and reduces memory contention."
+        },
+        {
+          "code": "LTS",
+          "name": "Long-Term Scheduler",
+          "alias": "Job Scheduler",
+          "primary_role": "Selects which new processes enter main memory (Ready queue) from secondary storage.",
+          "execution_frequency": "Runs less frequently (seconds or minutes).",
+          "control_metric": "Controls the degree of multiprogramming."
+        }
+      ]
+    }
+  ]
+}

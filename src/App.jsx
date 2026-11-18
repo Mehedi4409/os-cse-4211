@@ -8,6 +8,7 @@ import Lecture2 from './components/Lecture2';
 import Lecture3 from './components/Lecture3';
 import Lecture4 from './components/Lecture4';
 import Lecture5 from './components/Lecture5';
+import ResourceSection from './components/ResourceSection';
 
 const LECTURES = [
   { id: 'lecture-1', number: '01', title: 'Introduction to OS', component: Lecture1 },
@@ -30,11 +31,11 @@ function App() {
           <div className="lg:px-8 sm:px-4 pt-8 ">
             {activeId === 'home' ? (
               <HomeView onStartLecture={setActiveId} />
+            ) : activeId === 'resources' ? (
+              <ResourceSection />
             ) : (
               activeLecture && (
                 <div className="space-y-6">
-                  
-
                   {ActiveComponent && <ActiveComponent />}
                 </div>
               )

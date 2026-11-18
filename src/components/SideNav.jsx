@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Home, BookOpen, Cpu, ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
+import { Home, BookOpen, Cpu, ChevronLeft, ChevronRight, Menu, X, FolderDown } from 'lucide-react';
 
 const Brand = ({ className }) => (
   <div className={`flex shrink-0 items-center justify-center bg-[#111d4a] text-white ${className}`}>
@@ -7,7 +7,7 @@ const Brand = ({ className }) => (
   </div>
 );
 
-// One row used for both "Home" and every lecture.
+// One row used for Home, lectures, and resources.
 const NavItem = ({ icon: Icon, label, prefix, active, collapsed, onClick }) => (
   <button
     type="button"
@@ -110,7 +110,12 @@ const SideNav = ({ lectures = [], activeId, onSelect, children }) => {
 
           <nav className="flex-1 space-y-1.5 px-3 py-2 text-sm">
             <NavItem icon={Home} label="Home" active={activeId === 'home'} collapsed={collapsed} onClick={() => go('home')} />
+            
             <div className="my-3 border-t border-gray-100" />
+            
+            {!collapsed && (
+              <p className="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-gray-400">Lectures</p>
+            )}
             {lectures.map((l) => (
               <NavItem
                 key={l.id}
@@ -122,6 +127,19 @@ const SideNav = ({ lectures = [], activeId, onSelect, children }) => {
                 onClick={() => go(l.id)}
               />
             ))}
+
+            <div className="my-3 border-t border-gray-100" />
+
+            {!collapsed && (
+              <p className="px-3 pb-1 text-xs font-medium uppercase tracking-wider text-gray-400">Hub</p>
+            )}
+            <NavItem
+              icon={FolderDown}
+              label="Resources"
+              active={activeId === 'resources'}
+              collapsed={collapsed}
+              onClick={() => go('resources')}
+            />
           </nav>
         </aside>
       </div>
