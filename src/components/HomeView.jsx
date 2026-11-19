@@ -1,8 +1,24 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Download, ArrowRight, Cpu } from 'lucide-react';
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
+import { Download, ArrowRight, Cpu } from "lucide-react";
 
-const NOTES_FILE = 'os-note-kulsumma-mid.pdf'; // must match the file in public/downloads
+// Hand-notes PDF. The file must be in: public/downloads/
+const filename = "os-note-kulsuma-mid.pdf";
+const notesFile = {
+  filename,
+  type: filename.split(".").pop().toUpperCase(),
+  href: `/downloads/${filename}`,
+};
+
+console.log("[Download Debug] Step 0 - Module loaded:", {
+  filename,
+  notesFile,
+  origin: typeof window !== "undefined" ? window.location.origin : "SSR",
+  fullUrl:
+    typeof window !== "undefined"
+      ? `${window.location.origin}${notesFile.href}`
+      : notesFile.href,
+});
 
 // --- Animation Configuration & Helper ---
 const EASING = [0.16, 1, 0.3, 1];
@@ -38,7 +54,10 @@ const HeroHeader = () => (
     <motion.h1
       {...getEntranceAnimation(0.1, 20, 0.7)}
       className="font-extrabold tracking-tight text-gray-900"
-      style={{ fontSize: 'clamp(2.25rem, 5vw + 1rem, 4rem)', lineHeight: '1.1' }}
+      style={{
+        fontSize: "clamp(2.25rem, 5vw + 1rem, 4rem)",
+        lineHeight: "1.1",
+      }}
     >
       Master Operating Systems <br />
       <span className="bg-gradient-to-r from-[#111d4a] to-[#92140c] bg-clip-text text-transparent">
@@ -49,48 +68,47 @@ const HeroHeader = () => (
     <motion.p
       {...getEntranceAnimation(0.2, 20, 0.7)}
       className="mt-6 max-w-xl text-gray-500"
-      style={{ fontSize: 'clamp(1rem, 1vw + 0.5rem, 1.15rem)', lineHeight: '1.6' }}
+      style={{
+        fontSize: "clamp(1rem, 1vw + 0.5rem, 1.15rem)",
+        lineHeight: "1.6",
+      }}
     >
-      Explore kernel internals, process synchronization, and CPU scheduling through real-time
-      front-end simulations designed for clarity.
+      Explore kernel internals, process synchronization, and CPU scheduling
+      through real-time front-end simulations designed for clarity.
     </motion.p>
   </>
 );
 
-const ActionButton = ({ variant = 'primary', onClick, children }) => {
-  const styles = {
-    primary:
-      'bg-[#111d4a] text-white shadow-lg shadow-[#111d4a]/15 hover:bg-[#111d4a]/90',
-    secondary:
-      'border border-gray-200 bg-white text-gray-700 shadow-xs hover:border-[#92140c]/40 hover:text-[#92140c]',
-  };
+const ActionButton = ({ onClick, children }) => (
+  <motion.button
+    {...BUTTON_INTERACTION}
+    type="button"
+    onClick={onClick}
+    className="group relative inline-flex w-full sm:w-64 items-center justify-center gap-2.5 rounded-xl bg-[#111d4a] px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-[#111d4a]/15 transition-all hover:bg-[#111d4a]/90"
+  >
+    {children}
+  </motion.button>
+);
 
-  return (
-    <motion.button
-      {...BUTTON_INTERACTION}
-      type="button"
-      onClick={onClick}
-      className={`group relative inline-flex w-full sm:w-64 items-center justify-center gap-2.5 rounded-xl px-6 py-4 text-sm font-semibold transition-all ${styles[variant]}`}
-    >
-      {children}
-    </motion.button>
-  );
-};
-
-const ActionGroup = ({ onStartLecture, onDownloadNotes }) => (
+const ActionGroup = ({ onStartLecture, onDownloadClick }) => (
   <motion.div
     {...getEntranceAnimation(0.3, 25, 0.8)}
     className="mt-10 flex w-full flex-col sm:flex-row items-center justify-center gap-4 px-4"
   >
-    <ActionButton variant="primary" onClick={onStartLecture}>
+    <ActionButton onClick={onStartLecture}>
       <span>Start Lecture 1</span>
       <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
     </ActionButton>
 
-    <ActionButton variant="secondary" onClick={onDownloadNotes}>
+    <a
+      href={notesFile.href}
+      download={notesFile.filename}
+      onClick={onDownloadClick}
+      className="group relative inline-flex w-full sm:w-64 items-center justify-center gap-2.5 rounded-xl border border-gray-200 bg-white px-6 py-4 text-sm font-semibold text-gray-700 shadow-xs transition-all hover:-translate-y-0.5 hover:border-[#92140c]/40 hover:text-[#92140c] active:scale-[0.98]"
+    >
       <Download className="h-4 w-4 text-gray-400 transition-colors group-hover:text-[#92140c]" />
       <span>Download Hand Notes</span>
-    </ActionButton>
+    </a>
   </motion.div>
 );
 
@@ -101,17 +119,19 @@ const CourseCredits = () => (
   >
     <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-gray-400">
       <span>
-        Course Teacher:{'  '}
-        <strong className="font-semibold text-gray-700">MD. Mizanur Rahman</strong>
+        Course Teacher:{"  "}
+        <strong className="font-semibold text-gray-700">
+          MD. Mizanur Rahman
+        </strong>
       </span>
       <span className="hidden sm:inline text-gray-200">•</span>
       <span>
-        Notes by:{'  '}
+        Notes by:{"  "}
         <strong className="font-semibold text-gray-700">Kulsuma Akhter</strong>
       </span>
       <span className="hidden sm:inline text-gray-200">•</span>
       <span>
-        Developed by:{'  '}
+        Developed by:{"  "}
         <strong className="font-semibold text-gray-700">Mehedi Hasan</strong>
       </span>
     </div>
@@ -120,11 +140,76 @@ const CourseCredits = () => (
 
 // --- Main View Component ---
 const HomeView = ({ onStartLecture }) => {
-  const handleDownloadHandNotes = () => {
-    const a = document.createElement('a');
-    a.href = `/downloads/${NOTES_FILE}`;
-    a.download = NOTES_FILE;
-    a.click();
+  useEffect(() => {
+    console.log("[Download Debug] Step 1 - HomeView mounted, checking file availability:", notesFile.href);
+
+    fetch(notesFile.href, { method: "HEAD" })
+      .then((res) => {
+        console.log("[Download Debug] Step 1b - HEAD response received:", {
+          status: res.status,
+          ok: res.ok,
+          statusText: res.statusText,
+          contentType: res.headers.get("content-type"),
+          contentLength: res.headers.get("content-length"),
+          redirected: res.redirected,
+          url: res.url,
+        });
+        if (!res.ok) {
+          console.error(
+            "[Download Debug] ERROR - File check failed! Make sure the file exists at public/downloads/" +
+              notesFile.filename +
+              " and exact spelling/case matches."
+          );
+        }
+      })
+      .catch((err) => {
+        console.error("[Download Debug] ERROR - Fetch HEAD threw an error:", err);
+      });
+  }, []);
+
+  const handleDownloadClick = async (e) => {
+    console.log("[Download Debug] Step 2 - Anchor clicked:", {
+      defaultPrevented: e.defaultPrevented,
+      hrefAttr: e.currentTarget.getAttribute("href"),
+      resolvedHref: e.currentTarget.href,
+      downloadAttr: e.currentTarget.getAttribute("download"),
+      target: e.currentTarget.target,
+    });
+
+    try {
+      console.log("[Download Debug] Step 3 - Testing GET request to:", notesFile.href);
+      const res = await fetch(notesFile.href);
+      console.log("[Download Debug] Step 4 - GET response status:", {
+        status: res.status,
+        ok: res.ok,
+        contentType: res.headers.get("content-type"),
+        contentDisposition: res.headers.get("content-disposition"),
+        url: res.url,
+      });
+
+      if (!res.ok) {
+        const previewText = await res.text();
+        console.error("[Download Debug] Step 5 - Server returned non-OK response:", {
+          status: res.status,
+          bodyPreview: previewText.slice(0, 200),
+        });
+        return;
+      }
+
+      const blob = await res.blob();
+      console.log("[Download Debug] Step 5 - Blob received:", {
+        size: blob.size,
+        type: blob.type,
+      });
+
+      if (blob.type.includes("text/html")) {
+        console.warn(
+          "[Download Debug] WARNING - Received text/html instead of PDF! Likely falling back to index.html (404 SPA fallback) or wrong path."
+        );
+      }
+    } catch (err) {
+      console.error("[Download Debug] Step 3/4/5 ERROR - Request failed:", err);
+    }
   };
 
   return (
@@ -142,7 +227,7 @@ const HomeView = ({ onStartLecture }) => {
         <HeroHeader />
         <ActionGroup
           onStartLecture={onStartLecture}
-          onDownloadNotes={handleDownloadHandNotes}
+          onDownloadClick={handleDownloadClick}
         />
         <CourseCredits />
       </div>

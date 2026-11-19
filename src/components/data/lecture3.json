@@ -1,0 +1,279 @@
+{
+  "lecture": {
+    "number": 5,
+    "title": "Deadlocks",
+    "topics": [
+      "Deadlock Definition & Overview",
+      "Four Necessary Conditions for Deadlock",
+      "Resource Allocation Graph (RAG)",
+      "Deadlock Handling Methods",
+      "Banker's Algorithm"
+    ],
+    "sections": [
+      {
+        "type": "deadlock_overview",
+        "title": "Deadlock",
+        "definition": "A deadlock is a state in a multiprogramming environment where a set of blocked processes each holds a resource and waits to acquire a resource held by another process in the same set, resulting in no process being able to proceed or release its resources.",
+        "explanation": "When processes request resources simultaneously without a coordinated release or ordering strategy, a circular dependency can form. Because each waiting process cannot finish until it gets the needed resource, and none of the holding processes can release theirs until they finish, all involved processes remain permanently blocked unless external intervention occurs.",
+        "diagram": {
+          "type": "ascii_flow",
+          "caption": "Two processes mutually blocking each other over required resources",
+          "content": "+--------+       holds R1        +------------+\n|   P1   | --------------------> | Resource R1|\n+--------+                       +------------+\n   |  ^                                 |\n   |  |  requests R1           holds R2 | requests R2\n   v  |                                 v\n+------------+                   +--------+\n| Resource R2| <---------------- |   P2   |\n+------------+     holds R2      +--------+"
+        }
+      },
+      {
+        "type": "coffman_conditions",
+        "title": "Four Necessary Conditions for Deadlock",
+        "description": "All four conditions (Coffman conditions) must hold simultaneously in a system for a deadlock to occur. Breaking at least one condition prevents deadlock.",
+        "conditions": [
+          {
+            "id": "mutual_exclusion",
+            "name": "Mutual Exclusion",
+            "explanation": "At least one resource must be held in a non-sharable mode; only one process can use the resource at any given time. If another process requests that resource, the requesting process must be delayed until the resource is released.",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "Only P1 can access non-sharable resource R1 while P2 waits",
+              "content": "[P1] ---> (Exclusive Lock) ---> [Printer / R1]\n[P2] ---x (Blocked / Wait) ---> [Printer / R1]"
+            }
+          },
+          {
+            "id": "hold_and_wait",
+            "name": "Hold and Wait",
+            "explanation": "A process must currently be holding at least one resource while simultaneously waiting to acquire additional resources that are currently being held by other processes.",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "P1 holds R1 and waits for R2",
+              "content": "[R1] <--- (Holds) --- [P1] --- (Waits for) ---> [R2]"
+            }
+          },
+          {
+            "id": "no_preemption",
+            "name": "No Preemption",
+            "explanation": "Resources cannot be forcibly taken away from a process holding them. A resource can only be released voluntarily by the holding process after that process has completed its task.",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "OS cannot force R1 out of P1; P1 must release it voluntarily",
+              "content": "[OS / Scheduler] ---x (No Forceful Take) ---> [R1 held by P1]\n[P1 finishes task] ---> (Voluntary Release) ---> [Free R1]"
+            }
+          },
+          {
+            "id": "circular_wait",
+            "name": "Circular Wait",
+            "explanation": "A closed chain of two or more processes {P0, P1, ..., Pn} must exist such that P0 is waiting for a resource held by P1, P1 is waiting for a resource held by P2, ..., and Pn is waiting for a resource held by P0.",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "Closed wait cycle among processes and resources",
+              "content": "  P1 ----(waits)----> R2 ----(held by)----> P2\n  ^                                          |\n  | (held by)                                | (waits)\n  R1 <-------------------------------------- R3"
+            }
+          }
+        ]
+      },
+      {
+        "type": "rag_section",
+        "title": "Resource Allocation Graph (RAG)",
+        "graph_primitives": {
+          "description": "A Resource Allocation Graph is a directed graph G = (V, E) used to model resource allocation and request states in a system.",
+          "vertices": {
+            "title": "Vertices (V)",
+            "types": [
+              {
+                "name": "Process Vertices (P)",
+                "notation": "P = {P1, P2, ..., Pn}",
+                "description": "Represent all active processes in the system (commonly drawn as circles)."
+              },
+              {
+                "name": "Resource Type Vertices (R)",
+                "notation": "R = {R1, R2, ..., Rm}",
+                "description": "Represent all resource types in the system (commonly drawn as rectangles containing dots for instances)."
+              }
+            ]
+          },
+          "edges": {
+            "title": "Edges (E)",
+            "types": [
+              {
+                "name": "Request Edge",
+                "notation": "Pi -> Rj",
+                "description": "A directed edge from process Pi to resource type Rj means Pi has requested an instance of Rj and is currently waiting for it."
+              },
+              {
+                "name": "Assignment Edge",
+                "notation": "Rj -> Pi",
+                "description": "A directed edge from resource type Rj to process Pi means an instance of Rj has been allocated/assigned to Pi."
+              }
+            ]
+          },
+          "small_example_diagram": {
+            "type": "ascii_flow",
+            "caption": "Small RAG example: R1 assigned to P1; P1 requests R2; R2 assigned to P2",
+            "content": "  (P1) <======[ R1 ]======  (Assignment edge: R1 -> P1)\n   |\n   +-----(Request edge: P1 -> R2)-----> [ R2 ] ======> (P2)"
+          }
+        },
+        "resource_instances": {
+          "single_instance": {
+            "title": "Single-Instance Resources",
+            "explanation": "Each resource type has only one unit/instance (one dot inside the resource rectangle). Because there is no alternative copy of the resource, a cycle in the RAG is both a necessary and sufficient condition for deadlock.",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "Single-instance cycle (Deadlock guaranteed)",
+              "content": "  (P1) ---(req)---> [ R1: • ] ---(alloc)---> (P2)\n   ^                                          |\n   +-----------(alloc)--- [ R2: • ] <--(req)--+"
+            }
+          },
+          "multi_instance": {
+            "title": "Multi-Instance Resources",
+            "explanation": "A resource type has two or more identical instances (multiple dots inside the resource rectangle). A cycle in the RAG is a necessary condition for deadlock, but NOT sufficient—if a process in the cycle can obtain a free instance from another source and finish, it can release its held instances and break the cycle without deadlock.",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "Multi-instance resource R1 with 2 instances; cycle does not always imply deadlock",
+              "content": "  [ R1: • • ]\n   |       |\n(alloc)   (free instance available)\n   v       v\n  (P1) ---(req R2)---> [ R2: • • ] ---(alloc)---> (P2)"
+            }
+          }
+        }
+      },
+      {
+        "type": "deadlock_handling",
+        "title": "Deadlock Handling Methods",
+        "methods": [
+          {
+            "name": "Deadlock Ignorance (Ostrich Algorithm)",
+            "summary": "The operating system pretends that deadlocks never occur in the system and leaves handling to applications or manual restarts.",
+            "relation_to_four_conditions": "Does not actively prevent or break Mutual Exclusion, Hold and Wait, No Preemption, or Circular Wait. It trades theoretical safety for lower runtime overhead and simplicity when deadlocks are rare (used in many general-purpose OSes like UNIX/Linux).",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "OS ignores deadlock state to avoid continuous checking overhead",
+              "content": "[System Runs Normally] ---> (Deadlock occurs rarely) ---> [OS Takes No Action]"
+            }
+          },
+          {
+            "name": "Deadlock Prevention",
+            "summary": "Ensures that at least one of the four necessary conditions for deadlock can never hold at runtime.",
+            "relation_to_four_conditions": "Mutual Exclusion: make resources shareable where possible (read-only files; spooled devices). Hold and Wait: require processes to request all needed resources before execution or release held resources before requesting new ones (can cause low utilization and starvation). No Preemption: allow preempting held resources or forcing a process to release held resources if a new request cannot be immediately granted. Circular Wait: impose a total ordering on all resource types and require processes to request resources in increasing order.",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "Enforcing ordered resource requests (R1 < R2 < R3) breaks Circular Wait",
+              "content": "Allowed: P requests R1 ---> R2 ---> R3\nBlocked: P holds R2 ---> requests R1 (violates ordering)"
+            }
+          },
+          {
+            "name": "Deadlock Avoidance",
+            "summary": "The OS dynamically examines resource-allocation state and future maximum needs before granting a request, ensuring the system never enters an unsafe state that could lead to deadlock.",
+            "relation_to_four_conditions": "Keeps Mutual Exclusion, Hold and Wait, and No Preemption possible, while preventing the system from reaching a state where a Circular Wait / deadlock becomes unavoidable. Requires prior knowledge of maximum resource claims (e.g., Banker's Algorithm or Resource-Allocation Graph algorithm with claim edges).",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "Request is granted only if resulting state has a safe sequence",
+              "content": "[Resource Request] ---> [Simulate Allocation] ---> Safe? --(Yes)--> [Grant]\n                                                     |--(No)---> [Deny / Wait]"
+            }
+          },
+          {
+            "name": "Deadlock Detection and Recovery",
+            "summary": "Allows the system to enter a deadlock state, periodically runs a detection algorithm to identify deadlocked processes, and then applies recovery mechanisms.",
+            "relation_to_four_conditions": "All four conditions (Mutual Exclusion, Hold and Wait, No Preemption, Circular Wait) are allowed to occur. Detection checks for cycles/blocked sets (using wait-for graphs for single instances or safety-style detection algorithms for multiple instances), and Recovery breaks Circular Wait or No Preemption via process termination (abort all or abort one at a time) or resource preemption (rollback and selection of victim).",
+            "diagram": {
+              "type": "ascii_flow",
+              "caption": "Detect cycle/deadlock and recover via termination or preemption",
+              "content": "[Run Detection] ---> Deadlock Found? --(Yes)--> [Terminate Process / Preempt Resource]"
+            }
+          }
+        ]
+      },
+      {
+        "type": "bankers_algorithm",
+        "title": "Banker's Algorithm",
+        "brief": "Banker's Algorithm is a deadlock avoidance algorithm designed for systems with multiple instances of each resource type. Named after banking practices where a banker never allocates available cash in a way that cannot satisfy at least one customer's remaining credit limit, it checks whether granting a resource request leaves the system in a safe state (where there exists at least one safe sequence of processes that can finish using current Available resources plus resources released by earlier processes).",
+        "problem_input": {
+          "description": "Given 5 processes (P0 to P4) and 3 resource types (r1, r2, r3) with the following Maximum Need matrix:",
+          "resources": ["r1", "r2", "r3"],
+          "max_need": [
+            { "process": "P0", "r1": 7, "r2": 5, "r3": 3 },
+            { "process": "P1", "r1": 3, "r2": 2, "r3": 2 },
+            { "process": "P2", "r1": 9, "r2": 0, "r3": 2 },
+            { "process": "P3", "r1": 2, "r2": 2, "r3": 2 },
+            { "process": "P4", "r1": 4, "r2": 3, "r3": 3 }
+          ],
+          "assumptions_note": "Because Allocation and Total Resource instances are not explicitly specified in the prompt, a standard illustrative baseline state is assumed below (Total = [10, 5, 7], Allocation = [[0,1,0], [2,0,0], [3,0,2], [2,1,1], [0,0,2]], so Available = [3, 3, 2]). If your course uses different Allocation or Total values, plug those numbers into Need = Max - Allocation and Work = Available using the exact same steps."
+        },
+        "math_and_steps": {
+          "formulas": [
+            "Need[i] = Max[i] - Allocation[i] for each process i and resource type j",
+            "Available[j] = Total[j] - sum_i(Allocation[i][j])",
+            "Safety condition: Need[i] <= Work (element-wise across r1, r2, r3)",
+            "After process i finishes: Work = Work + Allocation[i]"
+          ],
+          "step_1_calculate_need": {
+            "title": "Step 1: Compute Available and Remaining Need Matrix",
+            "available_calculation": "Total = (10, 5, 7); Sum(Allocation) = (0+2+3+2+0, 1+0+0+1+0, 0+0+2+1+2) = (7, 2, 5); Available = (10-7, 5-2, 7-5) = (3, 3, 2).",
+            "need_rows": [
+              { "process": "P0", "max": [7, 5, 3], "allocation": [0, 1, 0], "need": [7, 4, 3], "calc": "(7-0, 5-1, 3-0) = (7, 4, 3)" },
+              { "process": "P1", "max": [3, 2, 2], "allocation": [2, 0, 0], "need": [1, 2, 2], "calc": "(3-2, 2-0, 2-0) = (1, 2, 2)" },
+              { "process": "P2", "max": [9, 0, 2], "allocation": [3, 0, 2], "need": [6, 0, 0], "calc": "(9-3, 0-0, 2-2) = (6, 0, 0)" },
+              { "process": "P3", "max": [2, 2, 2], "allocation": [2, 1, 1], "need": [0, 1, 1], "calc": "(2-2, 2-1, 2-1) = (0, 1, 1)" },
+              { "process": "P4", "max": [4, 3, 3], "allocation": [0, 0, 2], "need": [4, 3, 1], "calc": "(4-0, 3-0, 3-2) = (4, 3, 1)" }
+            ]
+          },
+          "step_2_safety_algorithm": {
+            "title": "Step 2: Run Safety Algorithm to Find a Safe Sequence",
+            "initial_work": [3, 3, 2],
+            "iterations": [
+              {
+                "step": "Check P0",
+                "need": [7, 4, 3],
+                "work_before": [3, 3, 2],
+                "comparison": "(7, 4, 3) <= (3, 3, 2) is False (7 > 3, 4 > 3, 3 > 2)",
+                "result": "P0 must wait."
+              },
+              {
+                "step": "Check P1",
+                "need": [1, 2, 2],
+                "work_before": [3, 3, 2],
+                "comparison": "(1, 2, 2) <= (3, 3, 2) is True (1 <= 3, 2 <= 3, 2 <= 2)",
+                "work_after": [5, 3, 2],
+                "result": "P1 runs and finishes; Work becomes (3, 3, 2) + (2, 0, 0) = (5, 3, 2)."
+              },
+              {
+                "step": "Check P2",
+                "need": [6, 0, 0],
+                "work_before": [5, 3, 2],
+                "comparison": "(6, 0, 0) <= (5, 3, 2) is False (6 > 5)",
+                "result": "P2 must wait."
+              },
+              {
+                "step": "Check P3",
+                "need": [0, 1, 1],
+                "work_before": [5, 3, 2],
+                "comparison": "(0, 1, 1) <= (5, 3, 2) is True (0 <= 5, 1 <= 3, 1 <= 2)",
+                "work_after": [7, 4, 3],
+                "result": "P3 runs and finishes; Work becomes (5, 3, 2) + (2, 1, 1) = (7, 4, 3)."
+              },
+              {
+                "step": "Check P4",
+                "need": [4, 3, 1],
+                "work_before": [7, 4, 3],
+                "comparison": "(4, 3, 1) <= (7, 4, 3) is True (4 <= 7, 3 <= 4, 1 <= 3)",
+                "work_after": [7, 4, 5],
+                "result": "P4 runs and finishes; Work becomes (7, 4, 3) + (0, 0, 2) = (7, 4, 5)."
+              },
+              {
+                "step": "Recheck P0",
+                "need": [7, 4, 3],
+                "work_before": [7, 4, 5],
+                "comparison": "(7, 4, 3) <= (7, 4, 5) is True (7 <= 7, 4 <= 4, 3 <= 5)",
+                "work_after": [7, 5, 5],
+                "result": "P0 runs and finishes; Work becomes (7, 4, 5) + (0, 1, 0) = (7, 5, 5)."
+              },
+              {
+                "step": "Recheck P2",
+                "need": [6, 0, 0],
+                "work_before": [7, 5, 5],
+                "comparison": "(6, 0, 0) <= (7, 5, 5) is True (6 <= 7, 0 <= 5, 0 <= 5)",
+                "work_after": [10, 5, 7],
+                "result": "P2 runs and finishes; Work becomes (7, 5, 5) + (3, 0, 2) = (10, 5, 7), matching Total resources."
+              }
+            ],
+            "safe_sequence": ["P1", "P3", "P4", "P0", "P2"],
+            "conclusion": "Because all processes can finish without exceeding available work at each step, the system is in a SAFE state with safe sequence <P1, P3, P4, P0, P2>."
+          }
+        }
+      }
+    ]
+  }
+}
